@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="TextView" />
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="200dp"
+        android:layout_gravity="center"
+        android:layout_weight="2"
+        android:gravity="bottom">
+
+        <com.ecube_solutions.ecubestation.View.IconView
+            android:id="@+id/imageSettings"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/network"
+            android:visibility="visible" />
+
+        <com.ecube_solutions.ecubestation.View.IconView
+            android:id="@+id/imageNetwork"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/network" />
+
+        <com.ecube_solutions.ecubestation.View.IconView
+            android:id="@+id/imageCloud"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/network"
+            android:visibility="visible" />
+
+        <com.ecube_solutions.ecubestation.View.IconView
+            android:id="@+id/imageGpio"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/network" />
+
+        <com.ecube_solutions.ecubestation.View.IconView
+            android:id="@+id/imageGps"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/network" />
+    </LinearLayout>
+
+</LinearLayout>
