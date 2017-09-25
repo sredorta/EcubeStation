@@ -1,7 +1,10 @@
 package com.ecube_solutions.ecubestation.Fragment;
 
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Rect;
 import android.net.wifi.WifiManager;
 import android.support.annotation.Nullable;
@@ -14,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.ecube_solutions.ecubestation.R;
+import com.ecube_solutions.ecubestation.Service.GpsService;
 import com.ecube_solutions.ecubestation.View.IconView;
 import com.ecube_solutions.ecubestation.Singleton.Locker;
 import com.ecube_solutions.ecubestation.DAO.CloudFetchr;
@@ -30,6 +34,9 @@ public class MainFragment extends Fragment {
     private static final int CODE_CLOUD_LOCATION = 2;   // Used for update location task
     private static final int CODE_SETTINGS_CHECK = 3;   // Used to check settings
     private static final int CODE_GPIO_CHECK = 4;       // Used to check GPIO access
+    Intent GpsServiceIntent;
+    public BroadcastReceiver GpsServiceReceiver;
+    public Locker mLocker;
 
     public static MainFragment newInstance() {
         return new MainFragment();
@@ -124,11 +131,11 @@ public class MainFragment extends Fragment {
                     case MainFragment.CODE_CLOUD_LOCATION:
                         Log.i("ASYNC:", "We are in setLocation");
                         if (Locker.lStatusGPS) {
-                            //longitude = String.valueOf(mLocker.getLockerLocation().getLongitude());
-                            //latitude = String.valueOf(mLocker.getLockerLocation().getLatitude());
+                            longitude = String.valueOf(Locker.lLongitude);
+                            latitude = String.valueOf(Locker.lLatitude);
                         } else {
-                            //longitude = "not_available";
-                            //latitude= "not_available";
+                            //longitude = "0";
+                            //latitude= "0";
                         }
                         //new CloudFetchr().setLocation(longitude,latitude);
                         break;
@@ -147,10 +154,35 @@ public class MainFragment extends Fragment {
 
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //Declare a new Locker Singleton
+        mLocker = Locker.getLocker();
+        mLocker.init(getContext());
+        GpsServiceIntent = new Intent(getActivity(), GpsService.class);
+        getActivity().startService(GpsServiceIntent);
+        Log.i("GPS", "Started GPS service !!!");
+        GpsServiceReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Log.i("GPS","Recieved GPS data !");
+                Bundle data = new Bundle();
+                //intent.getFloatExtra("longitude", 0);
+                //intent.getFloatExtra("latitude", 0);
+                Log.i("GPS", "Got longitude : " + intent.getStringExtra("longitude"));
+                //Update the locker location
+                Locker.lLongitude = Float.valueOf(intent.getStringExtra("longitude"));
+                Locker.lLatitude = Float.valueOf(intent.getStringExtra("latitude"));
+                Locker.lStatusGPS = true;
+
+            }
+        };
+        getActivity().registerReceiver(GpsServiceReceiver, new IntentFilter(GpsService.BROADCAST_ACTION));
+
     }
 
     @Override
     public void onDestroy() {
+        getActivity().stopService(GpsServiceIntent);
+        getActivity().unregisterReceiver(GpsServiceReceiver);
         super.onDestroy();
     }
 
@@ -171,7 +203,11 @@ public class MainFragment extends Fragment {
         //Check server connectivity
         myResult = new CloudFetchr().isCloudConnected();
         if (!myResult) return myResult;
+        //TODO : Here we need to wait GPS coords and then register the station
+        // if the station is registered, only update coords and timestamp
+        // else create the station with data
 
+        /*
         //Check if station registered and if not register
         myResult = new CloudFetchr().isStationRegistered();
         if (!myResult) {
@@ -187,7 +223,7 @@ public class MainFragment extends Fragment {
         }
         Locker.saveImagesToDisk("all");
         Locker.loadImagesfromDisk("all");
-
+*/
         return myResult;
     }
 

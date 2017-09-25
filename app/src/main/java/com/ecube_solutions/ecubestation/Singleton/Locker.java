@@ -33,6 +33,8 @@ public class Locker {
     public static int    lCapacity;        // Capacity of the locker
 
     public static Location lLocation;      // Location of the locker
+    public static float lLatitude;
+    public static float lLongitude;
     public static boolean lStatusNetwork;  // Status of the Network
     public static boolean lStatusCloud;    // Status of the Cloud
     public static boolean lStatusGPS;      // Status of the GPS
@@ -59,6 +61,8 @@ public class Locker {
         Locker.lTable = "stations";
         Locker.lCapacity = 10;
         Locker.lLocation = null;
+        Locker.lLatitude = null;
+        Locker.lLongitude = null;
         Locker.lStatusNetwork = false;
         Locker.lStatusCloud = false;
         Locker.lStatusGPIO = false;
@@ -159,7 +163,7 @@ public class Locker {
         return mAction;
     }
 
-
+*/
     //Get GPS location of the locker
     public Location getLockerLocation() {
         return lLocation;
@@ -167,9 +171,9 @@ public class Locker {
 
     //Sets the GPS location of the locker
     public void setLockerLocation(Location location) {
-        mLockerLocation = location;
+        lLocation = location;
     }
-
+/*
     public boolean isInternetConnected() {
         return mLockerConnected;
     }

@@ -9,8 +9,7 @@ import com.google.gson.annotations.SerializedName;
  *    This class is used to parse Json answers from the Cloud
  */
 public class JsonItem {
-        @SerializedName("success")
-        private String mSuccess = "false";
+
 
         @SerializedName("message")
         private String mMessage = "Could not connect to cloud !";
@@ -19,31 +18,10 @@ public class JsonItem {
         private String mResult = "false";
 
 
-        @SerializedName("action")
-        private String mAction = "nothing";
-
-        public boolean getSuccess() {
-            if (mSuccess.equals("1")) {
-                mSuccess = "true";
-            }
-            if (mSuccess.equals("0")) {
-                mSuccess = "false";
-            }
-            return Boolean.parseBoolean(mSuccess);
-        }
-        public void setSuccess(boolean success) {
-            mSuccess = String.valueOf(success);
-        }
-
-         public boolean getResult() {
-            if (mResult.equals("1")) {
+        public boolean getResult() {
+            if (mResult.equals("success")) {
                 mResult = "true";
-            }
-            if (mResult.equals("0")) {
-                mResult = "false";
-            }
-            //We need success to be true to check result
-            if (!this.getSuccess()) {
+            } else {
                 mResult = "false";
             }
             return Boolean.parseBoolean(mResult);
@@ -62,9 +40,9 @@ public class JsonItem {
 
 
 
-       public String getAction() {
-        return mAction;
-    }
+       //public String getAction() {
+       //return mAction;
+       //}
 
         public static JsonItem parseJSON(String response) {
             Gson gson = new GsonBuilder().create();

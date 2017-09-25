@@ -27,12 +27,12 @@ import android.app.Service;
  */
 
 public class GpsService extends Service implements LocationListener {
-    static final public String BROADCAST_ACTION = "com.bignerdranch.android.ibikestation.GpsService";
+    static final public String BROADCAST_ACTION = "com.ecube_solutions.ecubestation.GpsService";
 
     // The minimum distance to change Updates in meters
     private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 0; // 5 meters
     // Minimum distance to considere data stable
-    private static final long MIN_DISTANCE_STABLE_DATA = 1000;
+    private static final long MIN_DISTANCE_STABLE_DATA = 500;
 
     // The minimum time between updates in milliseconds
     private static final long MIN_TIME_BW_UPDATES = 0; // 10 second
@@ -40,6 +40,7 @@ public class GpsService extends Service implements LocationListener {
     private static final long MIN_TIME_STABLE_DATA = 1000*10*10;
     // Minimum accuracy required for considering good data
     private static final long  MIN_ACCURACY_STABLE_DATA = 1000;
+    private int mCount = 0;
 
     //    private final Context mContext;
     Location location = new Location("Point NEW"); // location
@@ -67,9 +68,10 @@ public class GpsService extends Service implements LocationListener {
         } catch (Exception e) {
             Log.i("GPS", "GPS not enabled, using network for now");
         }
-        if (isGPSEnabled) {
-            return LocationManager.GPS_PROVIDER;
-        }
+        //TODO: This needs to be enabled once we are outside because we need GPS coords !!!!!!
+ //      if (isGPSEnabled) {
+ //           return LocationManager.GPS_PROVIDER;
+ //       }
         if (isNetworkEnabled) {
             return LocationManager.NETWORK_PROVIDER;
         }
@@ -84,6 +86,7 @@ public class GpsService extends Service implements LocationListener {
         // flag for GPS status
 
         super.onCreate();
+        Log.i("GPS", "GPS Service onCreate !!");
         //Chec for permissions on latest versions
         if ( Build.VERSION.SDK_INT >= 23 &&
                 ContextCompat.checkSelfPermission( getBaseContext(), android.Manifest.permission.ACCESS_FINE_LOCATION ) != PackageManager.PERMISSION_GRANTED &&
@@ -101,6 +104,7 @@ public class GpsService extends Service implements LocationListener {
             sendBroadcast(intent);
             return;
         }
+        Log.i("GPS","Requesting location update !");
         locationManager.requestLocationUpdates(
                 getBestProvider(locationManager),
                 MIN_TIME_BW_UPDATES,
@@ -167,7 +171,7 @@ public class GpsService extends Service implements LocationListener {
         }
         //Check if time honors the threshold
         timeDelta = location.getTime() - previousLocation.getTime();
-        Log.i("SERGI","timeDelata = " + timeDelta);
+        Log.i("SERGI","timeDelta = " + timeDelta);
         if (timeDelta <= MIN_TIME_STABLE_DATA) {
             isWithinTime = true;
         }
@@ -177,7 +181,7 @@ public class GpsService extends Service implements LocationListener {
         }
         Log.i("GPS", "Using provider : " + location.getProvider());
         //Broadcast data if everything is respected
-        if (isWithinAccuracy && isWithinDistance && isWithinTime) {
+        if ((isWithinAccuracy && isWithinDistance && isWithinTime) || mCount==0) {
             intent.putExtra("isLocationValid", "true");
             intent.putExtra("longitude", " " + location.getLongitude());
             intent.putExtra("latitude", "" + location.getLatitude());
@@ -187,6 +191,7 @@ public class GpsService extends Service implements LocationListener {
             intent.putExtra("time_delta"," " + timeDelta );
             intent.putExtra("distance", String.format("%.1f", distance ));
             sendBroadcast(intent);
+            mCount++;
         }
 
     }

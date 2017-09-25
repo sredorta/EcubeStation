@@ -1,21 +1,14 @@
 package com.ecube_solutions.ecubestation.DAO;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.util.Log;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
@@ -24,8 +17,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +32,8 @@ public class CloudFetchr {
     private static final String TAG = "CloudFetchr::";
     private Context mContext;
     private static final String URI_BASE_GOOGLE = "http://clients3.google.com/generate_204";    //Only required to check if internet is available
-    private static final String URI_BASE = "http://10.0.2.2/example1/api/";
+    //private static final String URI_BASE = "http://10.0.2.2/example1/api/";
+    private static final String URI_BASE = "http://www.ecube-solutions.com/php/api/";
     private static final String PHP_CONNECTION_CHECK = "locker.connection.check.php";           // Params required : none
     private static final String PHP_STATION_CHECK = "locker.stations.check.php";                // Params required : name,table_stations
     private static final String PHP_STATION_ADD = "locker.stations.add.php";                    // Params required : name,table_stations + optional
@@ -139,7 +131,6 @@ public class CloudFetchr {
         JsonItem json = new JsonItem();  //json answer in case network not available
 
 
-        json.setSuccess(false);
         json.setResult(false);
         try {
             connection = (HttpURLConnection) url.openConnection();
@@ -245,11 +236,9 @@ public class CloudFetchr {
             item = JsonItem.parseJSON(jsonBody.toString());
         } catch (JSONException je) {
             Log.i(TAG,"Failed to parse JSON", je);
-            item.setSuccess(false);
             item.setResult(false);
             item.setMessage("ERROR: Failed to parse JSON !");
         } catch (IOException ioe) {
-            item.setSuccess(false);
             item.setResult(false);
             item.setMessage("ERROR: Failed to fetch JSON !");
             Log.i(TAG,"Falied to fetch items !", ioe);
@@ -274,13 +263,11 @@ public class CloudFetchr {
 
         } catch (JSONException je) {
             Log.i(TAG, "Failed to parse JSON", je);
-            item.setSuccess(false);
             item.setResult(false);
             item.setMessage("ERROR: Failed to parse JSON !");
 
         } catch (IOException ioe) {
             Log.i(TAG, "Falied to fetch items !", ioe);
-            item.setSuccess(false);
             item.setResult(false);
             item.setMessage("ERROR: Failed to fetch JSON !");
         }
@@ -288,7 +275,7 @@ public class CloudFetchr {
     }
 /*******************************************************************************************/
 
-    public String getAction() {
+/*    public String getAction() {
         //Define the POST/GET parameters in a HashMap
         HashMap<String, String> parameters = new HashMap<>();
         parameters.put("name", Locker.lName);
@@ -297,7 +284,7 @@ public class CloudFetchr {
         URL url = buildUrl(PHP_STATION_STATUS_REQUEST,parameters);
         JsonItem networkAnswer = getJSON(url,parameters);
         return (networkAnswer.getAction());
-    }
+    }*/
 
     public Boolean setLocation(String longitude,String latitude) {
         //Define the POST/GET parameters in a HashMap
@@ -309,7 +296,7 @@ public class CloudFetchr {
         URL url = buildUrl(PHP_STATION_UPDATE,parameters);
         Log.i("POLL", url.toString());
         JsonItem networkAnswer = getJSON(url,parameters);
-        return (networkAnswer.getSuccess());
+        return (networkAnswer.getResult());
     }
 
 
@@ -387,7 +374,7 @@ public class CloudFetchr {
 
         URL url = buildUrl(PHP_IMAGES_GET,parameters);
         JsonItem networkAnswer = getJSONImages(mItems,url,parameters);
-        if (!networkAnswer.getSuccess()) {
+        if (!networkAnswer.getResult()) {
             Log.i(TAG, "Error while accessing to the server !");
             return false;
         }
