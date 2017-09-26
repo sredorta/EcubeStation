@@ -24,6 +24,7 @@
         </activity>
         <activity android:name=".Activity.RunningActivity"></activity>
         <service android:name=".Service.GpsService" />
+        <service android:name=".Service.PollService" />
     </application>
 
 </manifest>

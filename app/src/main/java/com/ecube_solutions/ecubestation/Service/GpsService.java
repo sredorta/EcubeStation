@@ -41,7 +41,7 @@ public class GpsService extends Service implements LocationListener {
     //Minimum time between intervals to considere stable data
     private static final long MIN_TIME_STABLE_DATA = 1000*10*10;
     // Minimum accuracy required for considering good data
-    private static final long  MIN_ACCURACY_STABLE_DATA = 1000;
+    private static final long  MIN_ACCURACY_STABLE_DATA = 1000; //Should be 100
     private int mCount = 0;
 
     //    private final Context mContext;
@@ -120,6 +120,8 @@ public class GpsService extends Service implements LocationListener {
         location.setTime(MIN_TIME_BW_UPDATES*5);
         location.setLongitude(0);
         location.setLatitude(0);
+        //Save data in singleton
+        mLocker = Locker.getLocker();
     }
 
 
@@ -168,13 +170,13 @@ public class GpsService extends Service implements LocationListener {
         if (previousLocation.getLatitude() != 0 && previousLocation.getLongitude() != 0 ) {
             distance = location.distanceTo(previousLocation);
         }
-        Log.i("SERGI","distance = " + distance);
+        //Log.i("SERGI","distance = " + distance);
         if (distance <= MIN_DISTANCE_STABLE_DATA) {
             isWithinDistance = true;
         }
         //Check if time honors the threshold
         timeDelta = location.getTime() - previousLocation.getTime();
-        Log.i("SERGI","timeDelta = " + timeDelta);
+        //Log.i("SERGI","timeDelta = " + timeDelta);
         if (timeDelta <= MIN_TIME_STABLE_DATA) {
             isWithinTime = true;
         }
@@ -182,12 +184,12 @@ public class GpsService extends Service implements LocationListener {
         if (location.getAccuracy()<= MIN_ACCURACY_STABLE_DATA) {
             isWithinAccuracy = true;
         }
-        Log.i("GPS", "Got new coords !");
-        Log.i("GPS", "mCount : " + mCount);
-        Log.i("GPS", "provider : " + location.getProvider());
-        Log.i("GPS", "isWithinAccuracy : " + isWithinAccuracy);
-        Log.i("GPS", "isWithinDistance : " + isWithinDistance);
-        Log.i("GPS", "isWithinTime : " + isWithinTime);
+        //Log.i("GPS", "Got new coords !");
+        //Log.i("GPS", "mCount : " + mCount);
+        //Log.i("GPS", "provider : " + location.getProvider());
+        //Log.i("GPS", "isWithinAccuracy : " + isWithinAccuracy);
+        //Log.i("GPS", "isWithinDistance : " + isWithinDistance);
+        //Log.i("GPS", "isWithinTime : " + isWithinTime);
         //Broadcast data if everything is respected
         if ((isWithinAccuracy && isWithinDistance && isWithinTime) || mCount==0) {
             intent.putExtra("isLocationValid", "true");
@@ -200,8 +202,6 @@ public class GpsService extends Service implements LocationListener {
             intent.putExtra("distance", String.format("%.1f", distance ));
             sendBroadcast(intent);
             Log.i("GPS", "SAVED !!: Longitude : " +location.getLongitude()+ " latitude : " + location.getLatitude());
-            //Save data in singleton
-            mLocker = Locker.getLocker();
             mLocker.lLocation = location;
             mLocker.lStatusGPS = true;
             mCount++;

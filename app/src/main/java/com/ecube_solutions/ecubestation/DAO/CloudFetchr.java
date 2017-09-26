@@ -36,8 +36,8 @@ public class CloudFetchr {
     private static final String URI_BASE = "http://www.ecube-solutions.com/php/api/";
     private static final String PHP_CONNECTION_CHECK = "locker.connection.check.php";           // Params required : none
     private static final String PHP_STATION_REGISTER = "locker.stations.register.php";          // Params required : name,table_stations, latitude,longitude
-    private static final String PHP_IMAGES_GET = "locker.images.get.php";                       // Params required : name,table_stations,type(stream_all,details_all,details_last)
-
+    private static final String PHP_STATION_UPDATE = "locker.stations.update.php";              // Params required : name,table_stations returns any Locker actions
+    private static final String PHP_IMAGES_GET = "locker.product.get.php";                      // Params required : name
 //    private static final String PHP_STATION_UPDATE = "locker.stations.update.php";              // Params required : name + latitude...
 //    private static final String PHP_STATION_REGISTERED = "db_station_registered.php";           // Params required : name
 //    private static final String PHP_STATION_STATUS_REQUEST = "db_station_status_request.php";   // Params required: name
@@ -251,10 +251,10 @@ public class CloudFetchr {
             Log.i(TAG, "Received JSON:" + jsonString);
             JSONObject jsonBody = new JSONObject(jsonString);
             item = JsonItem.parseJSON(jsonBody.toString());
-            JSONArray photoJsonArray = jsonBody.getJSONArray("images");
-            for (int i = 0; i < photoJsonArray.length(); i++) {
-                JSONObject photoJsonObject = photoJsonArray.getJSONObject(i);
-                ImageItem itemImage = ImageItem.parseJSON(photoJsonObject.toString());
+            JSONArray productJsonArray = new JSONArray(item.getProducts());
+            for (int i = 0; i < productJsonArray.length(); i++) {
+                JSONObject productJsonObject = productJsonArray.getJSONObject(i);
+                ImageItem itemImage = ImageItem.parseJSON(productJsonObject.toString());
                 items.add(itemImage);
             }
 
@@ -312,6 +312,22 @@ public class CloudFetchr {
         return (networkAnswer.getResult());
     }
 
+    //Updates timeStamp on a very frequent poll basis and then checks if there is an action required like open/close locker
+    public Boolean queryStation() {
+        this.SEND_METHOD="POST";
+        HashMap<String, String> parameters = new HashMap<>();
+        parameters.put("name", Locker.lName);
+        parameters.put("table_stations", Locker.lTable);
+        //parameters.put("capacity", String.valueOf(Locker.lCapacity));
+
+        URL url = buildUrl(PHP_STATION_UPDATE,parameters);
+        JsonItem networkAnswer = getJSON(url,parameters);
+        Log.i("CLOUD", networkAnswer.getMessage());
+        return (networkAnswer.getResult());
+    }
+
+
+/*
 
     //Downloads all images and stores them in ImageItem List of Locker and in the disk
     // if id == "all" -> downloads all images
@@ -323,9 +339,6 @@ public class CloudFetchr {
         this.SEND_METHOD="POST";
         HashMap<String, String> parameters = new HashMap<>();
         parameters.put("name", Locker.lName);
-        parameters.put("table_stations", Locker.lTable);
-        parameters.put("type", "stream_all");
-        parameters.put("id", id);
         URL url = buildUrl(PHP_IMAGES_GET,parameters);
         JsonItem networkAnswer = getJSONImages(mItems,url,parameters);
         //We need now to refresh the Locker variable
@@ -338,12 +351,12 @@ public class CloudFetchr {
         }
         return (networkAnswer.getResult());
     }
-
+*/
     //Checks which images are already available and which images needs download and accordingly
     // removes/adds the new images
-    public boolean getImagesDelta() {
+    public boolean getImages() {
         List<ImageItem> mItems = new ArrayList<>();
-        List<ImageItem> deltaList = new ArrayList<>();
+//        List<ImageItem> deltaList = new ArrayList<>();
 
         this.SEND_METHOD="POST";
         HashMap<String, String> parameters = new HashMap<>();
@@ -352,27 +365,22 @@ public class CloudFetchr {
         parameters.put("type", "details_all");
 
         URL url = buildUrl(PHP_IMAGES_GET,parameters);
-        JsonItem networkAnswer = getJSONImages(mItems,url,parameters);
+        List<ImageItem> lImagesTmp = new ArrayList<>();
+        JsonItem networkAnswer = getJSONImages(lImagesTmp,url,parameters);
         if (!networkAnswer.getResult()) {
             Log.i(TAG, "Error while accessing to the server !");
             return false;
-        }
-         //Detect new Ids to download, download them and save them into disk and update Locker.lImages
-        deltaList = ImageItem.compareImageArray(Locker.lImages,mItems);
-        for (int i=0; i<deltaList.size(); i++) {
-            Log.i(TAG, "Need to add :" + deltaList.get(i).getId());
-            this.getImages(deltaList.get(i).getId());
-        }
-
-        //Detect Ids to remove
-        //Detect new Ids to download
-        deltaList = ImageItem.compareImageArray(mItems, Locker.lImages);
-        for (int i=0; i<deltaList.size(); i++) {
-            Log.i(TAG, "Need to remove :" + deltaList.get(i).getId());
-            Locker.removeImagesFromDisk(deltaList.get(i).getId());
+        } else {
+            Locker.lImages = lImagesTmp;
+/*            int i;
+            Log.i("SERGI", "Restored Images !!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            for (i=0; i<Locker.lImages.size() ; i++) {
+                ImageItem test = Locker.lImages.get(i);
+                Log.i("IMG", "Product id : " + test.getId() + " description : " + test.getDescription());
+            }
+            */
         }
 
-        //Locker.lImages = mItems;
         return (networkAnswer.getResult());
     }
 

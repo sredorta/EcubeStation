@@ -86,7 +86,7 @@ public class Locker {
     public static Boolean isValid() {
         return (Locker.lStatusNetwork && Locker.lStatusCloud && Locker.lStatusGPS);
     }
-
+/*
     //Remove images from Disk
     // if id == "all" -> remove all images
     // if id == "27" -> remove only image with id == 27
@@ -161,7 +161,7 @@ public class Locker {
         }
         return true;
     }
-
+*/
 /*
     public void setAction(String action) {
         mAction = action;

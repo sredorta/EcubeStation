@@ -32,7 +32,7 @@ public class ImageItem {
     private Bitmap mBitmap;                             //Stores the bitmap of the image once reloaded from disk
 
     //Map JSON strings to our variables
-    @SerializedName("id")
+    @SerializedName("product_id")
     private String mId;
 
     @SerializedName("name")
@@ -41,7 +41,7 @@ public class ImageItem {
     @SerializedName("description")
     private String mDescription;
 
-    @SerializedName("stream")
+    @SerializedName("picture")
     private String mStream;
 
     public String getId() {
@@ -92,9 +92,7 @@ public class ImageItem {
     }
 
     //Returns the base64 decoded stream
-    public byte[] getStream() {
-        return Base64.decode(this.parseBase64(),Base64.DEFAULT);
-    }
+    public byte[] getStream() {return Base64.decode(this.parseBase64(),Base64.DEFAULT);}
 
     // Parses the mStream and returns the stream without header
     //     it extracts all info from the header
@@ -130,7 +128,7 @@ public class ImageItem {
         //Returns now the stream without header
         return streamHeaderFree;
     }
-
+/*
     //Writes to a local file the image of the object
     public boolean saveToFile(File directory) {
         byte[] bitmapBytes = this.getStream();
@@ -218,5 +216,5 @@ public class ImageItem {
         }
         return idToDownload;
     }
-
+*/
 }

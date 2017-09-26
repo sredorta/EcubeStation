@@ -28,7 +28,7 @@ import java.io.InputStream;
  * The only thing required is set the result before the animation ends
  */
 public class IconView extends AppCompatImageView {
-    private static Boolean DEBUG_MODE = true;
+    private static Boolean DEBUG_MODE = false;
     private Context mContext;
     private static final String TAG ="IconView::";
     private static final String IMAGE_ICONS_FOLDER = "checkerImages";
@@ -41,7 +41,7 @@ public class IconView extends AppCompatImageView {
     private AssetManager mAssets;
     private String mName = "";
     private IconView mIconView;
-    private int mIterations = 4;        // Number of iterations
+    private int mIterations = 2;        // Number of iterations
     private long mDelay = 0;            // Delay for the animation
     private boolean mResult = false;    //Stores the result so that it turns red/green depending on boolean
 

@@ -17,6 +17,9 @@ public class JsonItem {
         @SerializedName("result")
         private String mResult = "false";
 
+        @SerializedName("products")
+        private String mProducts = null;
+
 
         public boolean getResult() {
             if (mResult.equals("success")) {
@@ -38,6 +41,7 @@ public class JsonItem {
             mMessage = message;
         }
 
+        public String getProducts() { return mProducts; }
 
 
        //public String getAction() {

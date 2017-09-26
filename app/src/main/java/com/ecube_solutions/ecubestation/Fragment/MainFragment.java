@@ -41,6 +41,7 @@ public class MainFragment extends Fragment {
     Intent GpsServiceIntent;
     public BroadcastReceiver GpsServiceReceiver;
     public Locker mLocker;
+    private Boolean mStopService = true;
 
     public static MainFragment newInstance() {
         return new MainFragment();
@@ -67,15 +68,15 @@ public class MainFragment extends Fragment {
 
 
 
-        IconSettings.setIterations(4);
+        IconSettings.setIterations(2);
         IconSettings.setDelay(0);
-        IconNetwork.setIterations(8);
+        IconNetwork.setIterations(4);
         IconNetwork.setDelay(200);
-        IconCloud.setIterations(12);
+        IconCloud.setIterations(6);
         IconCloud.setDelay(400);
-        IconGPIO.setIterations(16);
+        IconGPIO.setIterations(8);
         IconGPIO.setDelay(600);
-        IconGPS.setIterations(20);
+        IconGPS.setIterations(10);
         IconGPS.setDelay(800);
         IconSettings.startAnimation();
         IconNetwork.startAnimation();
@@ -152,6 +153,7 @@ public class MainFragment extends Fragment {
 
             Toast.makeText(getActivity(), "All params ok !", Toast.LENGTH_LONG).show();
             Intent i = RunningActivity.newIntent(getActivity(), "test");
+            mStopService = false;
             startActivity(i);
             getActivity().finish();
 
@@ -221,29 +223,11 @@ public class MainFragment extends Fragment {
         GpsServiceIntent = new Intent(getActivity(), GpsService.class);
         getActivity().startService(GpsServiceIntent);
         Log.i("GPS", "Started GPS service !!!");
-/*        GpsServiceReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                Log.i("GPS","Recieved GPS data !");
-                Bundle data = new Bundle();
-                //intent.getFloatExtra("longitude", 0);
-                //intent.getFloatExtra("latitude", 0);
-                Log.i("GPS", "Got longitude : " + intent.getStringExtra("longitude"));
-                //Update the locker location
-                Locker.lLongitude = Float.valueOf(intent.getStringExtra("longitude"));
-                Locker.lLatitude = Float.valueOf(intent.getStringExtra("latitude"));
-                Locker.lStatusGPS = true;
-
-            }
-        };
-        getActivity().registerReceiver(GpsServiceReceiver, new IntentFilter(GpsService.BROADCAST_ACTION));
-*/
     }
 
     @Override
     public void onDestroy() {
-        getActivity().stopService(GpsServiceIntent);
-//        getActivity().unregisterReceiver(GpsServiceReceiver);
+        if (mStopService) getActivity().stopService(GpsServiceIntent);
         super.onDestroy();
     }
 
@@ -251,9 +235,6 @@ public class MainFragment extends Fragment {
     public boolean checkSettings() {
         WifiManager wifiManager = (WifiManager)this.getContext().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         wifiManager.setWifiEnabled(true);
-
-        //Remove all downloaded images from disk so that we start in a clean way
-        Locker.removeImagesFromDisk("all");
 
         return true;
     }
@@ -264,27 +245,6 @@ public class MainFragment extends Fragment {
         //Check server connectivity
         myResult = new CloudFetchr().isCloudConnected();
         if (!myResult) return myResult;
-        //TODO : Here we need to wait GPS coords and then register the station
-        // if the station is registered, only update coords and timestamp
-        // else create the station with data
-
-        /*
-        //Check if station registered and if not register
-        myResult = new CloudFetchr().isStationRegistered();
-        if (!myResult) {
-            Log.i(TAG, "Registering new station...");
-            myResult = new CloudFetchr().registerStation();
-            if (!myResult) return myResult;
-        }
-        //Download all images one by one and store them in the singleton
-        myResult = new CloudFetchr().getImages("all");
-        if (!myResult) {
-            Log.i(TAG, "No images found...");
-            return myResult;
-        }
-        Locker.saveImagesToDisk("all");
-        Locker.loadImagesfromDisk("all");
-*/
         return myResult;
     }
 
