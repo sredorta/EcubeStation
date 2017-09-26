@@ -1,6 +1,8 @@
 package com.ecube_solutions.ecubestation.Fragment;
 
 
+import android.animation.Animator;
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -15,7 +17,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.ecube_solutions.ecubestation.Activity.RunningActivity;
 import com.ecube_solutions.ecubestation.R;
 import com.ecube_solutions.ecubestation.Service.GpsService;
 import com.ecube_solutions.ecubestation.View.IconView;
@@ -31,9 +35,9 @@ public class MainFragment extends Fragment {
     private static final String TAG ="MainFragment::";
     private static final int CODE_CLOUD_CHECK = 0;      // Used for the async task to check cloud connection
     private static final int CODE_INTERNET_CHECK = 1;   // Used for the async task to check internet connection
-    private static final int CODE_CLOUD_LOCATION = 2;   // Used for update location task
-    private static final int CODE_SETTINGS_CHECK = 3;   // Used to check settings
-    private static final int CODE_GPIO_CHECK = 4;       // Used to check GPIO access
+    private static final int CODE_SETTINGS_CHECK = 2;   // Used to check settings
+    private static final int CODE_GPIO_CHECK = 3;       // Used to check GPIO access
+    private static final int CODE_REGISTER = 4;   // Used for register the station
     Intent GpsServiceIntent;
     public BroadcastReceiver GpsServiceReceiver;
     public Locker mLocker;
@@ -46,14 +50,12 @@ public class MainFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.main_fragment,container,false);
-        TextView tv = (TextView) v.findViewById(R.id.textView);
-        tv.setText("This is a test");
         final IconView IconSettings = (IconView) v.findViewById(R.id.imageSettings);
         final IconView IconNetwork = (IconView) v.findViewById(R.id.imageNetwork);
         final IconView IconCloud = (IconView) v.findViewById(R.id.imageCloud);
         final IconView IconGPIO = (IconView) v.findViewById(R.id.imageGpio);
         final IconView IconGPS = (IconView) v.findViewById(R.id.imageGps);
-
+        final Locker mLocker = Locker.getLocker();
         //Define all views of ImageViewCheckers and start animations
         IconGPS.loadBitmapAsset("gps.png");
         IconNetwork.loadBitmapAsset("network.png");
@@ -78,11 +80,56 @@ public class MainFragment extends Fragment {
         IconSettings.startAnimation();
         IconNetwork.startAnimation();
         IconCloud.startAnimation();
-        IconGPIO.startAnimation();
-        IconGPS.startAnimation();
-        //RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.fragment_beat_box_recycler_view);
-        //recyclerView.setLayoutManager(new GridLayoutManager(getActivity(),3));
-        //recyclerView.setAdapter(new SoundAdapter(mBeatBox.getSounds()));
+        Animator gpioAnim = IconGPIO.startAnimation();
+
+        gpioAnim.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                Log.i("GPS_START", "lStatusGPS is : " + Locker.lStatusGPS);
+                if (Locker.lStatusGPS) {
+                    IconGPS.setResult(Locker.lStatusGPS);
+                    Log.i("GPS_START", "Register station now !");
+                    ExecutorService executor = Executors.newSingleThreadExecutor();
+                    executor.execute(createRunnable(CODE_REGISTER, IconGPS));
+                    executor.shutdown();
+                }
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
+
+
+        Animator test = IconGPS.startAnimation();
+        test.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+            @Override
+            public void onAnimationEnd(Animator animator) {
+
+                startRunningActivity();
+            }
+            @Override
+            public void onAnimationCancel(Animator animator) {
+            }
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+            }
+        });
 
 
         //Executes sequentially tasks
@@ -96,10 +143,27 @@ public class MainFragment extends Fragment {
 
         return v;
     }
+    //Run now the main activity
+    public void startRunningActivity() {
+        Log.i("SERGI", "startRunningActivity !!!!");
+        if (Locker.isValid()) {
+
+            Activity myActivity = getActivity();
+
+            Toast.makeText(getActivity(), "All params ok !", Toast.LENGTH_LONG).show();
+            Intent i = RunningActivity.newIntent(getActivity(), "test");
+            startActivity(i);
+            getActivity().finish();
+
+        } else {
+            Toast.makeText(getActivity(), "Parameters invalid ! ", Toast.LENGTH_LONG).show();
+        }
+    }
+
     // Create a runnable with the desired task to accomplish
     public Runnable createRunnable(final int code, IconView v) {
         final IconView myIcon = v;
-        final Locker mLocker = Locker.getLocker();
+
 
         return new Runnable() {
             @Override
@@ -128,17 +192,14 @@ public class MainFragment extends Fragment {
                         myIcon.setResult(myResult);
                         Locker.lStatusNetwork = myResult;
                         break;
-                    case MainFragment.CODE_CLOUD_LOCATION:
-                        Log.i("ASYNC:", "We are in setLocation");
-                        if (Locker.lStatusGPS) {
-                            longitude = String.valueOf(Locker.lLongitude);
-                            latitude = String.valueOf(Locker.lLatitude);
-                        } else {
-                            //longitude = "0";
-                            //latitude= "0";
+                    case MainFragment.CODE_REGISTER:
+                        Log.i("ASYNC", "Code_register");
+                        if (Locker.isValid()) {
+                            myResult = false;
+                            myResult = new CloudFetchr().registerStation();
+                            Locker.lStatusRegistered = true;
+                            Log.i("GPS", "Station registered, result is : " + myResult);
                         }
-                        //new CloudFetchr().setLocation(longitude,latitude);
-                        break;
                     default:
                         new CloudFetchr().isCloudConnected();
                 }
@@ -160,7 +221,7 @@ public class MainFragment extends Fragment {
         GpsServiceIntent = new Intent(getActivity(), GpsService.class);
         getActivity().startService(GpsServiceIntent);
         Log.i("GPS", "Started GPS service !!!");
-        GpsServiceReceiver = new BroadcastReceiver() {
+/*        GpsServiceReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 Log.i("GPS","Recieved GPS data !");
@@ -176,13 +237,13 @@ public class MainFragment extends Fragment {
             }
         };
         getActivity().registerReceiver(GpsServiceReceiver, new IntentFilter(GpsService.BROADCAST_ACTION));
-
+*/
     }
 
     @Override
     public void onDestroy() {
         getActivity().stopService(GpsServiceIntent);
-        getActivity().unregisterReceiver(GpsServiceReceiver);
+//        getActivity().unregisterReceiver(GpsServiceReceiver);
         super.onDestroy();
     }
 

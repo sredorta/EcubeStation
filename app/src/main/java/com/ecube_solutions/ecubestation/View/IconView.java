@@ -50,7 +50,7 @@ public class IconView extends AppCompatImageView {
         super(context);
         mContext = context;
         mAssets = context.getAssets();
-
+        this.setVisibility(View.INVISIBLE);
     }
 
 
@@ -62,6 +62,7 @@ public class IconView extends AppCompatImageView {
         mContext = context;
         mAssets = context.getAssets();
         mIconView = this;
+        this.setVisibility(View.INVISIBLE);
     }
 
     public IconView(Context context, AttributeSet atts, int defStyleAttr) {
@@ -69,6 +70,7 @@ public class IconView extends AppCompatImageView {
         mContext = context;
         mAssets = context.getAssets();
         mIconView = this;
+        this.setVisibility(View.INVISIBLE);
     }
 
 
@@ -199,8 +201,29 @@ public class IconView extends AppCompatImageView {
     private ObjectAnimator startFallDownAnimation() {
         if (DEBUG_MODE) Log.i(TAG,"Started initial anim");
         //Turn on visibility
-        this.setVisibility(View.VISIBLE);
+
         ObjectAnimator fallDownAnimator = ObjectAnimator.ofFloat(this, "y", -100, FINAL_LANDING_Y_COORDINATE).setDuration(1000);
+        fallDownAnimator.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                IconView.this.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
         return fallDownAnimator;
     }
     private ObjectAnimator startFadeInOutAnimation() {

@@ -20,6 +20,8 @@ import android.app.Service;
         import android.util.Log;
         import android.widget.Toast;
 
+import com.ecube_solutions.ecubestation.Singleton.Locker;
+
 /**
  GpsService class
  This is the service that gets GPS location for a Locker
@@ -47,6 +49,7 @@ public class GpsService extends Service implements LocationListener {
     Location previousLocation = new Location("point OLD");;
 
     Intent intent;
+    private Locker mLocker;
 
     // Declaring a Location Manager
     protected LocationManager locationManager;
@@ -179,7 +182,12 @@ public class GpsService extends Service implements LocationListener {
         if (location.getAccuracy()<= MIN_ACCURACY_STABLE_DATA) {
             isWithinAccuracy = true;
         }
-        Log.i("GPS", "Using provider : " + location.getProvider());
+        Log.i("GPS", "Got new coords !");
+        Log.i("GPS", "mCount : " + mCount);
+        Log.i("GPS", "provider : " + location.getProvider());
+        Log.i("GPS", "isWithinAccuracy : " + isWithinAccuracy);
+        Log.i("GPS", "isWithinDistance : " + isWithinDistance);
+        Log.i("GPS", "isWithinTime : " + isWithinTime);
         //Broadcast data if everything is respected
         if ((isWithinAccuracy && isWithinDistance && isWithinTime) || mCount==0) {
             intent.putExtra("isLocationValid", "true");
@@ -191,6 +199,11 @@ public class GpsService extends Service implements LocationListener {
             intent.putExtra("time_delta"," " + timeDelta );
             intent.putExtra("distance", String.format("%.1f", distance ));
             sendBroadcast(intent);
+            Log.i("GPS", "SAVED !!: Longitude : " +location.getLongitude()+ " latitude : " + location.getLatitude());
+            //Save data in singleton
+            mLocker = Locker.getLocker();
+            mLocker.lLocation = location;
+            mLocker.lStatusGPS = true;
             mCount++;
         }
 

@@ -35,17 +35,14 @@ public class CloudFetchr {
     //private static final String URI_BASE = "http://10.0.2.2/example1/api/";
     private static final String URI_BASE = "http://www.ecube-solutions.com/php/api/";
     private static final String PHP_CONNECTION_CHECK = "locker.connection.check.php";           // Params required : none
-    private static final String PHP_STATION_CHECK = "locker.stations.check.php";                // Params required : name,table_stations
-    private static final String PHP_STATION_ADD = "locker.stations.add.php";                    // Params required : name,table_stations + optional
+    private static final String PHP_STATION_REGISTER = "locker.stations.register.php";          // Params required : name,table_stations, latitude,longitude
     private static final String PHP_IMAGES_GET = "locker.images.get.php";                       // Params required : name,table_stations,type(stream_all,details_all,details_last)
 
-    private static final String PHP_STATION_UPDATE = "locker.stations.update.php";              // Params required : name + latitude...
-    private static final String PHP_STATION_REGISTERED = "db_station_registered.php";           // Params required : name
-    private static final String PHP_STATION_STATUS_REQUEST = "db_station_status_request.php";   // Params required: name
+//    private static final String PHP_STATION_UPDATE = "locker.stations.update.php";              // Params required : name + latitude...
+//    private static final String PHP_STATION_REGISTERED = "db_station_registered.php";           // Params required : name
+//    private static final String PHP_STATION_STATUS_REQUEST = "db_station_status_request.php";   // Params required: name
     private static String SEND_METHOD = "POST";                                           // POST or GET method
 
-    private static final String USER = "sergi";
-    private static final String PASSWORD = "HIB2oB2f" ;
 
     private Locker mLocker = Locker.getLocker();
 
@@ -274,18 +271,7 @@ public class CloudFetchr {
         return item;
     }
 /*******************************************************************************************/
-
-/*    public String getAction() {
-        //Define the POST/GET parameters in a HashMap
-        HashMap<String, String> parameters = new HashMap<>();
-        parameters.put("name", Locker.lName);
-        parameters.put("time_delta", String.valueOf(new Date().getTime()));
-
-        URL url = buildUrl(PHP_STATION_STATUS_REQUEST,parameters);
-        JsonItem networkAnswer = getJSON(url,parameters);
-        return (networkAnswer.getAction());
-    }*/
-
+/*
     public Boolean setLocation(String longitude,String latitude) {
         //Define the POST/GET parameters in a HashMap
         HashMap<String, String> parameters = new HashMap<>();
@@ -298,7 +284,7 @@ public class CloudFetchr {
         JsonItem networkAnswer = getJSON(url,parameters);
         return (networkAnswer.getResult());
     }
-
+*/
 
     public Boolean isCloudConnected() {
         //Define the POST/GET parameters in a HashMap
@@ -311,28 +297,21 @@ public class CloudFetchr {
     }
 
     //Checks if the station is registered
-    public Boolean isStationRegistered() {
-        this.SEND_METHOD="POST";
-        HashMap<String, String> parameters = new HashMap<>();
-        parameters.put("name", Locker.lName);
-        parameters.put("table_stations", Locker.lTable);
-
-        URL url = buildUrl(PHP_STATION_CHECK,parameters);
-        JsonItem networkAnswer = getJSON(url,parameters);
-        return (networkAnswer.getResult());
-    }
-
     public Boolean registerStation() {
         this.SEND_METHOD="POST";
         HashMap<String, String> parameters = new HashMap<>();
         parameters.put("name", Locker.lName);
         parameters.put("table_stations", Locker.lTable);
-        parameters.put("capacity", String.valueOf(Locker.lCapacity));
+        parameters.put("longitude", Double.toString(Locker.lLocation.getLongitude()));
+        parameters.put("latitude", Double.toString(Locker.lLocation.getLatitude()));
+        //parameters.put("capacity", String.valueOf(Locker.lCapacity));
 
-        URL url = buildUrl(PHP_STATION_ADD,parameters);
+        URL url = buildUrl(PHP_STATION_REGISTER,parameters);
         JsonItem networkAnswer = getJSON(url,parameters);
+        Log.i("CLOUD", networkAnswer.getMessage());
         return (networkAnswer.getResult());
     }
+
 
     //Downloads all images and stores them in ImageItem List of Locker and in the disk
     // if id == "all" -> downloads all images

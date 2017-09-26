@@ -1,12 +1,17 @@
 package com.ecube_solutions.ecubestation.Singleton;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.location.Location;
+import android.os.Bundle;
 import android.util.Log;
 
 import com.ecube_solutions.ecubestation.DAO.ImageItem;
+import com.ecube_solutions.ecubestation.Service.GpsService;
 
 import java.io.File;
 import java.io.FileDescriptor;
@@ -33,12 +38,11 @@ public class Locker {
     public static int    lCapacity;        // Capacity of the locker
 
     public static Location lLocation;      // Location of the locker
-    public static float lLatitude;
-    public static float lLongitude;
     public static boolean lStatusNetwork;  // Status of the Network
     public static boolean lStatusCloud;    // Status of the Cloud
     public static boolean lStatusGPS;      // Status of the GPS
     public static boolean lStatusGPIO;     // Status of the GPIO
+    public static boolean lStatusRegistered; //Status of station registered or not
 
     //Images handler
     private static final String IMAGES_DIR = "imagesDir";
@@ -57,12 +61,11 @@ public class Locker {
 
     //Inits the singleton (to be called only once in the app !)
     public void init(Context context) {
-        Locker.lName = "station222";
+        Locker.lName = "MYSTATION1";
         Locker.lTable = "stations";
         Locker.lCapacity = 10;
         Locker.lLocation = null;
-        Locker.lLatitude = null;
-        Locker.lLongitude = null;
+        Locker.lStatusRegistered = false;
         Locker.lStatusNetwork = false;
         Locker.lStatusCloud = false;
         Locker.lStatusGPIO = false;
@@ -77,6 +80,11 @@ public class Locker {
         for (int i = 0; i < lCapacity; i++) {
             locks.add(new Lock(i));
         }
+    }
+
+    //Returns if the Locker has been initialized properly
+    public static Boolean isValid() {
+        return (Locker.lStatusNetwork && Locker.lStatusCloud && Locker.lStatusGPS);
     }
 
     //Remove images from Disk
