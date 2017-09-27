@@ -1,5 +1,8 @@
 package com.ecube_solutions.ecubestation.Fragment;
 
+import android.animation.Animator;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -17,6 +20,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.ecube_solutions.ecubestation.Activity.RunningActivity;
@@ -34,17 +38,22 @@ import com.ecube_solutions.ecubestation.Singleton.Locker;
 public class RunningFragment extends Fragment {
     private static Boolean DEBUG_MODE = true;           // Enables/disables verbose logging
     private static final int SYNC_INTERVAL_IMAGES = 1000*30;    //Interval to see if new images are available
+    private static final int SHIFT_INTERVAL_IMAGES = 1000*6;    //Interval to switch to new image
     private static final String TAG ="MainFragment::";
     private Intent GpsServiceIntent;
     private BroadcastReceiver GpsServiceReceiver;
     private Intent PollServiceIntent;
     private BroadcastReceiver PollServiceReceiver;
     private static Handler handlerImageSync = new Handler();
+    private static Handler handlerImageShift = new Handler();
 
+    private int mImageIndex;
     public Locker mLocker;
     ImageView productImage;
     TextView productDescription;
-
+    TextView productPrice;
+    LinearLayout productShow;
+    TextView productDisplay;
 
     public static RunningFragment newInstance() {
         return new RunningFragment();
@@ -56,6 +65,9 @@ public class RunningFragment extends Fragment {
         View v = inflater.inflate(R.layout.running_fragment,container,false);
         productImage = (ImageView) v.findViewById(R.id.product_image);
         productDescription = (TextView) v.findViewById(R.id.product_description);
+        productPrice = (TextView) v.findViewById(R.id.product_price);
+        productShow = (LinearLayout) v.findViewById(R.id.product_container);
+        productDisplay = (TextView) v.findViewById(R.id.productDisplay);
         return v;
     }
 
@@ -66,9 +78,10 @@ public class RunningFragment extends Fragment {
         mLocker = Locker.getLocker();
         mLocker.init(getContext());
         //Register to the GPS service and keep alive position and timestamp of the station
+        mImageIndex = 0;
         this.registerGpsService();
         this.startPollService();
-        this.startImageSync();
+        this.startImageShift();
     }
 
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -82,7 +95,7 @@ public class RunningFragment extends Fragment {
         getActivity().unregisterReceiver(GpsServiceReceiver);
         getActivity().stopService(PollServiceIntent);
         getActivity().unregisterReceiver(PollServiceReceiver);
-        handlerImageSync.removeCallbacks(syncImages);
+        handlerImageShift.removeCallbacks(shiftImages);
         super.onDestroy();
     }
 
@@ -128,38 +141,76 @@ public class RunningFragment extends Fragment {
     //----------------------------------------------------------------------------------------------
     // Image handling
     //----------------------------------------------------------------------------------------------
-    private void startImageSync() {
+    private void startImageShift() {
         Log.i(TAG,"Starting image SYNC!");
-        handlerImageSync.postDelayed(syncImages, SYNC_INTERVAL_IMAGES);
+        handlerImageShift.postDelayed(shiftImages, SHIFT_INTERVAL_IMAGES);
 
     }
     //This is the code that will be generated
-    private final Runnable syncImages = new Runnable() {
+    private final Runnable shiftImages = new Runnable() {
         @Override
         public void run() {
-            //Do something after POLL_INTERVAL
-            String mAction="nothing ";
-            Log.i(TAG, "Sync of images !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-            int i;
-            Log.i("SYNC IMAGES", "Now syncikng!");
-            for (i=0; i<Locker.lImages.size() ; i++) {
-                ImageItem test = Locker.lImages.get(i);
-                Log.i("IMG", "Product id : " + test.getId() + " description : " + test.getDescription());
-                if (test.getStream()!= null) {
-                    Log.i("Stream", test.getStream().toString());
-                    //byte[] decodedString = Base64.decode(test.getStream(), Base64.DEFAULT);
-                    Bitmap decodedByte = BitmapFactory.decodeByteArray(test.getStream(), 0, test.getStream().length);
-                    productImage.setImageBitmap(decodedByte);
-                    productDescription.setText(test.getDescription());
+            if (Locker.lImages.size()>0) {
+                productShow.setVisibility(View.VISIBLE);
+                productDisplay.setVisibility(View.VISIBLE);
+            } else {
+                productShow.setVisibility(View.INVISIBLE);
+                productDisplay.setVisibility(View.INVISIBLE);
+            }
+            if (mImageIndex > Locker.lImages.size()) mImageIndex = 0;
+            //if (Locker.lImages.size()>0 && Locker.lImages.get(mImageIndex) == null) mImageIndex =0;
+            Log.i("SHIMG", "ShiftImage Index is :" + mImageIndex);
+            if (Locker.lImages.size()> 0) {
+                if (Locker.lImages.get(mImageIndex) != null) {
+                    ObjectAnimator animatorExit = ObjectAnimator.ofFloat(productShow, "alpha", 1, 0).setDuration(300);
+                    animatorExit.setRepeatCount(0);
+                    ObjectAnimator animatorEnter = ObjectAnimator.ofFloat(productShow, "alpha", 0, 1).setDuration(300);
+                    animatorEnter.setRepeatCount(0);
+                    AnimatorSet animatorSet = new AnimatorSet();
+                    animatorSet.playSequentially(animatorExit,animatorEnter);
+                    animatorSet.setStartDelay(0);
+                    animatorSet.start();
+                    animatorExit.addListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animation) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            ImageItem test = Locker.lImages.get(mImageIndex);
+                            Bitmap decodedByte = BitmapFactory.decodeByteArray(test.getStream(), 0, test.getStream().length);
+                            productImage.setImageBitmap(decodedByte);
+                            productDescription.setText(test.getDescription());
+                            productPrice.setText(test.getPrice());
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animation) {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animation) {
+
+                        }
+                    });
+
+                    mImageIndex++;
+                    if (mImageIndex >= Locker.lImages.size()) mImageIndex = 0;
                 }
+            } else {
+
+                mImageIndex =0;
             }
 
-
-            handlerImageSync.postDelayed(this, SYNC_INTERVAL_IMAGES);
+            handlerImageShift.postDelayed(this, SHIFT_INTERVAL_IMAGES);
         }};
 
 
-
+    //----------------------------------------------------------------------------------------------
+    // Poll service handling
+    //----------------------------------------------------------------------------------------------
 
     //Handle poll service !
     private void startPollService() {

@@ -28,7 +28,7 @@ import com.ecube_solutions.ecubestation.Singleton.Locker;
 //ser=id228014_sergi&password=HIB2oB2f
 
 public class CloudFetchr {
-    private static Boolean DEBUG_MODE = true;
+    private static Boolean DEBUG_MODE = false;
     private static final String TAG = "CloudFetchr::";
     private Context mContext;
     private static final String URI_BASE_GOOGLE = "http://clients3.google.com/generate_204";    //Only required to check if internet is available
@@ -271,20 +271,6 @@ public class CloudFetchr {
         return item;
     }
 /*******************************************************************************************/
-/*
-    public Boolean setLocation(String longitude,String latitude) {
-        //Define the POST/GET parameters in a HashMap
-        HashMap<String, String> parameters = new HashMap<>();
-        parameters.put("name", Locker.lName);
-        parameters.put("longitude", longitude);
-        parameters.put("latitude", latitude);
-
-        URL url = buildUrl(PHP_STATION_UPDATE,parameters);
-        Log.i("POLL", url.toString());
-        JsonItem networkAnswer = getJSON(url,parameters);
-        return (networkAnswer.getResult());
-    }
-*/
 
     public Boolean isCloudConnected() {
         //Define the POST/GET parameters in a HashMap
@@ -327,36 +313,10 @@ public class CloudFetchr {
     }
 
 
-/*
-
-    //Downloads all images and stores them in ImageItem List of Locker and in the disk
-    // if id == "all" -> downloads all images
-    // if id == "27" -> downloads image with id == 27 in the db
-    public boolean getImages(String id) {
-        List<ImageItem> mItems = new ArrayList<>();
-        List<ImageItem> deltaItems = new ArrayList<>();
-
-        this.SEND_METHOD="POST";
-        HashMap<String, String> parameters = new HashMap<>();
-        parameters.put("name", Locker.lName);
-        URL url = buildUrl(PHP_IMAGES_GET,parameters);
-        JsonItem networkAnswer = getJSONImages(mItems,url,parameters);
-        //We need now to refresh the Locker variable
-        deltaItems = ImageItem.compareImageArray(Locker.lImages, mItems);
-        for (ImageItem imageNew : deltaItems) {
-            Locker.lImages.add(imageNew);
-            Locker.saveImagesToDisk(imageNew.getId());
-            Locker.loadImagesfromDisk(imageNew.getId());
-            if (DEBUG_MODE) Log.i(TAG, "Added in Locker.lImages and stored to disk the image with id :" + imageNew.getId());
-        }
-        return (networkAnswer.getResult());
-    }
-*/
     //Checks which images are already available and which images needs download and accordingly
     // removes/adds the new images
     public boolean getImages() {
         List<ImageItem> mItems = new ArrayList<>();
-//        List<ImageItem> deltaList = new ArrayList<>();
 
         this.SEND_METHOD="POST";
         HashMap<String, String> parameters = new HashMap<>();
@@ -372,23 +332,10 @@ public class CloudFetchr {
             return false;
         } else {
             Locker.lImages = lImagesTmp;
-/*            int i;
-            Log.i("SERGI", "Restored Images !!!!!!!!!!!!!!!!!!!!!!!!!!!");
-            for (i=0; i<Locker.lImages.size() ; i++) {
-                ImageItem test = Locker.lImages.get(i);
-                Log.i("IMG", "Product id : " + test.getId() + " description : " + test.getDescription());
-            }
-            */
         }
 
         return (networkAnswer.getResult());
     }
-
-
-
-
-
-
 
 
 }
