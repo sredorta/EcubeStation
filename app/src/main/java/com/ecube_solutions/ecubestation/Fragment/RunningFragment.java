@@ -44,7 +44,6 @@ public class RunningFragment extends Fragment {
     private BroadcastReceiver GpsServiceReceiver;
     private Intent PollServiceIntent;
     private BroadcastReceiver PollServiceReceiver;
-    private static Handler handlerImageSync = new Handler();
     private static Handler handlerImageShift = new Handler();
 
     private int mImageIndex;
