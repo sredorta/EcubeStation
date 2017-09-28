@@ -20,6 +20,8 @@ public class JsonItem {
         @SerializedName("products")
         private String mProducts = null;
 
+        @SerializedName("action")
+        private String mAction = null;
 
         public boolean getResult() {
             if (mResult.equals("success")) {
@@ -44,9 +46,9 @@ public class JsonItem {
         public String getProducts() { return mProducts; }
 
 
-       //public String getAction() {
-       //return mAction;
-       //}
+       public String getAction() {
+         return mAction;
+       }
 
         public static JsonItem parseJSON(String response) {
             Gson gson = new GsonBuilder().create();

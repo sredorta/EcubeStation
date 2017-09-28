@@ -299,17 +299,28 @@ public class CloudFetchr {
     }
 
     //Updates timeStamp on a very frequent poll basis and then checks if there is an action required like open/close locker
-    public Boolean queryStation() {
+    public JsonItem queryStation() {
         this.SEND_METHOD="POST";
         HashMap<String, String> parameters = new HashMap<>();
         parameters.put("name", Locker.lName);
         parameters.put("table_stations", Locker.lTable);
-        //parameters.put("capacity", String.valueOf(Locker.lCapacity));
 
         URL url = buildUrl(PHP_STATION_UPDATE,parameters);
         JsonItem networkAnswer = getJSON(url,parameters);
-        Log.i("CLOUD", networkAnswer.getMessage());
-        return (networkAnswer.getResult());
+        return (networkAnswer);
+    }
+
+    //Updates timeStamp on a very frequent poll basis and then checks if there is an action required like open/close locker
+    public JsonItem setAction(String action) {
+        this.SEND_METHOD="POST";
+        HashMap<String, String> parameters = new HashMap<>();
+        parameters.put("name", Locker.lName);
+        parameters.put("table_stations", Locker.lTable);
+        parameters.put("action", action);
+
+        URL url = buildUrl(PHP_STATION_UPDATE,parameters);
+        JsonItem networkAnswer = getJSON(url,parameters);
+        return (networkAnswer);
     }
 
 

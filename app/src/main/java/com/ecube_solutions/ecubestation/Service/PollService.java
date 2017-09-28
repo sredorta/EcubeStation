@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import com.ecube_solutions.ecubestation.DAO.CloudFetchr;
 import com.ecube_solutions.ecubestation.DAO.GPIO;
+import com.ecube_solutions.ecubestation.DAO.JsonItem;
 import com.ecube_solutions.ecubestation.Singleton.Locker;
 import com.ecube_solutions.ecubestation.View.IconView;
 
@@ -35,13 +36,21 @@ public class PollService extends Service {
     private static final int POLL_INTERVAL = 1000*10; // 6 seconds
     private static final int POLL_INTERVAL_IMAGES = 1000*30;    //Interval to see if new images are available
     private static final int CODE_POLL_IMAGES = 0;
+    private static final int CODE_UPDATE_TIMESTAMP = 1;
+    private static final int CODE_UPDATE_ACTION = 2;
     private static Handler handler = new Handler();
     private static Handler handlerImagePoll = new Handler();
+    Intent intent;
 
     //Constructor
     public PollService() {
         super();
         Log.i(TAG,"Created poll service !");
+    }
+
+    //Make sure that only one Intent can be created
+    public static Intent newIntent(Context context) {
+        return new Intent(context, PollService.class);
     }
 
     @Override
@@ -50,7 +59,7 @@ public class PollService extends Service {
         Log.i(TAG,"Created poll service onCreate!");
         handler.postDelayed(sendData, POLL_INTERVAL);
         handlerImagePoll.postDelayed(pollImages, POLL_INTERVAL_IMAGES);
-
+        intent = new Intent(BROADCAST_ACTION);
     }
 
     //This is the code that will be generated
@@ -74,26 +83,48 @@ public class PollService extends Service {
             String mAction="nothing ";
             Log.i(TAG, "Polling...");
             //mAction = new CloudFetchr().getAction();
-            FetchCloudTask task = new FetchCloudTask();
+            FetchCloudTask task = new FetchCloudTask(CODE_UPDATE_TIMESTAMP);
             task.execute();
             handler.postDelayed(this, POLL_INTERVAL);
         }};
 
 
     //Update timestamp of the station on a POLL_INTERVAL basis and check if an action on locker is required
-    private class FetchCloudTask extends AsyncTask<Void,Void,Boolean> {
-        public FetchCloudTask() {}
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            Log.i(TAG,"Do in Background");
-                    return (new CloudFetchr().queryStation());
+    private class FetchCloudTask extends AsyncTask<Void,Void,JsonItem> {
+        public int mCode;
+        public String mAction;
+        public FetchCloudTask(int code) {
+            mCode = code;
+        }
+        public FetchCloudTask(int code, String action) {
+            mCode = code;
+            mAction = action;
         }
 
         @Override
-        protected void onPostExecute(Boolean action) {
-            Log.i(TAG,"Updated timestamp during poll !");
-            //TODO: We should no wo any action if required like open locker...
+        protected JsonItem doInBackground(Void... params) {
+            Log.i(TAG,"Do in Background");
+            if (mCode == CODE_UPDATE_TIMESTAMP) {
+                return (new CloudFetchr().queryStation());
+            } else {
+                return (new CloudFetchr().setAction(mAction));
+            }
+        }
+
+        @Override
+        protected void onPostExecute(JsonItem item) {
+            //Send Intent to activity with action to be performed if there is any
+            if (item.getResult()) {
+                if (mCode == CODE_UPDATE_TIMESTAMP) {
+                    if (!item.getAction().equals("none")) {
+                        intent.putExtra("action", item.getAction());
+                        sendBroadcast(intent);
+                    }
+                    //Update action as we have done it
+                    FetchCloudTask task = new FetchCloudTask(CODE_UPDATE_ACTION, "none");
+                    task.execute();
+                }
+            }
         }
     }
 
