@@ -13,7 +13,7 @@
         android:layout_margin="30dp"
         android:adjustViewBounds="false"
         android:scaleType="fitCenter"
-        android:src="@drawable/product_no_image" />
+        android:src="@drawable/logo"/>
     <TextView
         android:id="@+id/action"
         android:layout_width="match_parent"

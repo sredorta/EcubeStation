@@ -59,6 +59,7 @@ public class RunningFragment extends Fragment {
         return new RunningFragment();
     }
 
+    //test
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
