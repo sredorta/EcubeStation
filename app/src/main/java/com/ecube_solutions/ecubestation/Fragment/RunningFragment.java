@@ -53,6 +53,10 @@ public class RunningFragment extends Fragment {
     TextView productPrice;
     LinearLayout productShow;
     TextView productDisplay;
+    ImageView mainImage;    //Contains logo...
+    TextView mainText;      //Contains Welcome...
+
+
 
     public static RunningFragment newInstance() {
         return new RunningFragment();
@@ -68,6 +72,8 @@ public class RunningFragment extends Fragment {
         productPrice = (TextView) v.findViewById(R.id.product_price);
         productShow = (LinearLayout) v.findViewById(R.id.product_container);
         productDisplay = (TextView) v.findViewById(R.id.productDisplay);
+        mainImage = (ImageView) v.findViewById(R.id.mainImage);
+        mainText = (TextView) v.findViewById(R.id.mainText);
         return v;
     }
 
@@ -211,7 +217,6 @@ public class RunningFragment extends Fragment {
     //----------------------------------------------------------------------------------------------
     // Poll service handling
     //----------------------------------------------------------------------------------------------
-
     //Handle poll service !
     private void startPollService() {
         PollServiceIntent = new Intent(getActivity(), PollService.class);
@@ -221,12 +226,45 @@ public class RunningFragment extends Fragment {
             @Override
             public void onReceive(Context context, Intent intent) {
                 Log.i("POLL","Poll data recieved !!!!");
-
+                Log.i("POLL", "Got action : " + intent.getStringExtra("action"));
+                handleLockerAction(intent.getStringExtra("action"));
             }
         };
         getActivity().registerReceiver(PollServiceReceiver, new IntentFilter(PollService.BROADCAST_ACTION));
 
     }
+
+    //----------------------------------------------------------------------------------------------
+    // Handle actions required on the locker
+    //----------------------------------------------------------------------------------------------
+    private void handleLockerAction(String action) {
+        switch (action) {
+            case "OPEN_LOCKER_1":
+                mainImage.setImageDrawable(getResources().getDrawable(R.drawable.open));
+                mainText.setText(getResources().getString(R.string.mainTextOpen) + " #" + 1);
+                resetScreen();
+                //TODO: Open the locker 1
+                break;
+            case "CLOSE_LOCKER_1":
+                mainImage.setImageDrawable(getResources().getDrawable(R.drawable.closed));
+                mainText.setText(getResources().getString(R.string.mainTextClose) + " #" + 1);
+                resetScreen();
+                //TODO: Close the locker 1
+         }
+    }
+
+    //Restore main screen after some time
+    private void resetScreen() {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mainImage.setImageDrawable(getResources().getDrawable(R.drawable.logo));
+                mainText.setText(getResources().getString(R.string.mainText));
+            }
+        }, 5000);
+    }
+
+
 }
 
 

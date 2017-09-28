@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">EcubeStation</string>
+    <string name="mainText">Welcome !</string>
+    <string name="mainTextOpen">Openning locker </string>
+    <string name="mainTextClose">Closing locker </string>
+    <string name="productsList">Products available</string>
 </resources>
