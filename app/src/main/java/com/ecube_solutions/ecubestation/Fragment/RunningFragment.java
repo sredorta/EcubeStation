@@ -239,6 +239,19 @@ public class RunningFragment extends Fragment {
     //----------------------------------------------------------------------------------------------
     private void handleLockerAction(String action) {
         switch (action) {
+            case "OPEN_LOCKER_0":
+                mainImage.setImageDrawable(getResources().getDrawable(R.drawable.open));
+                mainText.setText(getResources().getString(R.string.mainTextOpen) + " #" + 0);
+                resetScreen();
+                //TODO: Open the locker 1
+                break;
+            case "CLOSE_LOCKER_0":
+                mainImage.setImageDrawable(getResources().getDrawable(R.drawable.closed));
+                mainText.setText(getResources().getString(R.string.mainTextClose) + " #" + 0);
+                resetScreen();
+                //TODO: Close the locker 1
+                break;
+
             case "OPEN_LOCKER_1":
                 mainImage.setImageDrawable(getResources().getDrawable(R.drawable.open));
                 mainText.setText(getResources().getString(R.string.mainTextOpen) + " #" + 1);
@@ -249,8 +262,30 @@ public class RunningFragment extends Fragment {
                 mainImage.setImageDrawable(getResources().getDrawable(R.drawable.closed));
                 mainText.setText(getResources().getString(R.string.mainTextClose) + " #" + 1);
                 resetScreen();
+                break;
                 //TODO: Close the locker 1
+            case "OPEN_LOCKER_2":
+                mainImage.setImageDrawable(getResources().getDrawable(R.drawable.open));
+                mainText.setText(getResources().getString(R.string.mainTextOpen) + " #" + 2);
+                resetScreen();
+                //TODO: Open the locker 1
+                break;
+            case "CLOSE_LOCKER_2":
+                mainImage.setImageDrawable(getResources().getDrawable(R.drawable.closed));
+                mainText.setText(getResources().getString(R.string.mainTextClose) + " #" + 2);
+                resetScreen();
+                //TODO: Close the locker 1
+                break;
+
+
+
          }
+
+
+
+
+
+
     }
 
     //Restore main screen after some time
