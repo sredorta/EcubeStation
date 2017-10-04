@@ -34,6 +34,10 @@ import com.ecube_solutions.ecubestation.Singleton.Locker;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static java.lang.Integer.parseInt;
 
 /**
  * Created by sergi on 26/09/2017.
@@ -80,8 +84,12 @@ public class RunningFragment extends Fragment {
         productDisplay = (TextView) v.findViewById(R.id.productDisplay);
         mainImage = (ImageView) v.findViewById(R.id.mainImage);
         mainText = (TextView) v.findViewById(R.id.mainText);
-        gpioArray.get(0).activationPin();
-        gpioArray.get(0).setInOut("out");
+        //Init all gpio to output
+        int i;
+        for (i=0; i<16; i++ ) {
+            gpioArray.get(i).activationPin();
+            gpioArray.get(i).setInOut("out");
+        }
         return v;
     }
 
@@ -246,55 +254,33 @@ public class RunningFragment extends Fragment {
     // Handle actions required on the locker
     //----------------------------------------------------------------------------------------------
     private void handleLockerAction(String action) {
-        switch (action) {
-            case "OPEN_LOCKER_0":
-                mainImage.setImageDrawable(getResources().getDrawable(R.drawable.open));
-                mainText.setText(getResources().getString(R.string.mainTextOpen) + " #" + 0);
-                gpioArray.get(0).setState(1);
-                resetScreen();
-                //TODO: Open the locker 1
-                break;
-            case "CLOSE_LOCKER_0":
-                mainImage.setImageDrawable(getResources().getDrawable(R.drawable.closed));
-                mainText.setText(getResources().getString(R.string.mainTextClose) + " #" + 0);
-                gpioArray.get(0).setState(0);
-                resetScreen();
-                //TODO: Close the locker 1
-                break;
+        int myLocker = new Integer(15);
+        //Do regexp to know wich io needs action
+        Pattern p = Pattern.compile("[0-9]+$");
+        Matcher m = p.matcher(action);
+        if (m.find()) {
+            Log.i("TEST", "Found action matching : " + m.group());
+            myLocker = parseInt(m.group());
+        }
+        p = Pattern.compile("OPEN_LOCKER_[0-9]+$");
+        m = p.matcher(action);
+        if (m.find()) {
+            Log.i("TEST", "OPEN_LOCKER detected !");
+            mainImage.setImageDrawable(getResources().getDrawable(R.drawable.open));
+            mainText.setText(getResources().getString(R.string.mainTextOpen) + " #" + myLocker);
+            gpioArray.get(myLocker).setState(1);
+            resetScreen();
+        }
 
-            case "OPEN_LOCKER_1":
-                mainImage.setImageDrawable(getResources().getDrawable(R.drawable.open));
-                mainText.setText(getResources().getString(R.string.mainTextOpen) + " #" + 1);
-                resetScreen();
-                //TODO: Open the locker 1
-                break;
-            case "CLOSE_LOCKER_1":
-                mainImage.setImageDrawable(getResources().getDrawable(R.drawable.closed));
-                mainText.setText(getResources().getString(R.string.mainTextClose) + " #" + 1);
-                resetScreen();
-                break;
-                //TODO: Close the locker 1
-            case "OPEN_LOCKER_2":
-                mainImage.setImageDrawable(getResources().getDrawable(R.drawable.open));
-                mainText.setText(getResources().getString(R.string.mainTextOpen) + " #" + 2);
-                resetScreen();
-                //TODO: Open the locker 1
-                break;
-            case "CLOSE_LOCKER_2":
-                mainImage.setImageDrawable(getResources().getDrawable(R.drawable.closed));
-                mainText.setText(getResources().getString(R.string.mainTextClose) + " #" + 2);
-                resetScreen();
-                //TODO: Close the locker 1
-                break;
-
-
-
-         }
-
-
-
-
-
+        p = Pattern.compile("CLOSE_LOCKER_[0-9]+$");
+        m = p.matcher(action);
+        if (m.find()) {
+            Log.i("TEST", "CLOSE_LOCKER detected !");
+            mainImage.setImageDrawable(getResources().getDrawable(R.drawable.closed));
+            mainText.setText(getResources().getString(R.string.mainTextClose) + " #" + myLocker);
+            gpioArray.get(myLocker).setState(0);
+            resetScreen();
+        }
 
     }
 

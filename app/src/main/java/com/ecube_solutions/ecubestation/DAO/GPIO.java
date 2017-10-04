@@ -60,16 +60,22 @@ public class GPIO {
 
     public static ArrayList<GPIO> getArray() {
         ArrayList<GPIO> myList = new ArrayList<>();
-        myList.add(new GPIO(2));   //[0] : GPIO-A    Pin:3
-
-        myList.add(new GPIO(36));   //[0] : GPIO-A    Pin:23
-        myList.add(new GPIO(12));   //[1] : GPIO-B    Pin:24
-        myList.add(new GPIO(13));   //[2] : GPIO-C    Pin:25
-        myList.add(new GPIO(69));   //[3] : GPIO-D    Pin:26
-        myList.add(new GPIO(115));  //[4] : GPIO-E    Pin:27
-        myList.add(new GPIO(12));   //[5] : GPIO-F    Pin:28
-        myList.add(new GPIO(13));   //[6] : GPIO-C    Pin:25
-        myList.add(new GPIO(69));   //[7] : GPIO-D    Pin:26
+        myList.add(new GPIO(2));   //[0] : GPIO-2    Pin:3
+        myList.add(new GPIO(0));   //[1] : GPIO-0    Pin:5
+        myList.add(new GPIO(1));   //[2] : GPIO-1    Pin:7
+        myList.add(new GPIO(3));   //[3] : GPIO-3    Pin:9
+        myList.add(new GPIO(4));   //[4] : GPIO-4    Pin:11
+        myList.add(new GPIO(5));   //[5] : GPIO-5    Pin:13
+        myList.add(new GPIO(7));   //[6] : GPIO-7    Pin:15
+        myList.add(new GPIO(9));   //[7] : GPIO-6    Pin:17
+        myList.add(new GPIO(23));  //[8] : GPIO-23   Pin:19
+        myList.add(new GPIO(22));  //[9] : GPIO-22   Pin:21
+        myList.add(new GPIO(36));  //[10] : GPIO-36  Pin:23
+        myList.add(new GPIO(13));  //[11] : GPIO-13  Pin:25
+        myList.add(new GPIO(115)); //[12] : GPIO-115 Pin:27
+        myList.add(new GPIO(24));  //[13] : GPIO-24  Pin:29
+        myList.add(new GPIO(35));  //[14] : GPIO-35  Pin:31
+        myList.add(new GPIO(28));  //[15] : GPIO-28  Pin:33
 
 
         return myList;
