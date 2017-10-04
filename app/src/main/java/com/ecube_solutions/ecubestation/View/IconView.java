@@ -32,7 +32,7 @@ public class IconView extends AppCompatImageView {
     private Context mContext;
     private static final String TAG ="IconView::";
     private static final String IMAGE_ICONS_FOLDER = "checkerImages";
-    private static final int FINAL_LANDING_Y_COORDINATE = 250; //450 for the snapdragon
+    private static final int FINAL_LANDING_Y_COORDINATE = 450; //450 for the snapdragon
     private int mFinalLandingCordinate = 0;
     private Bitmap mOriginalBitmap;
     private Bitmap mRedBitmap;

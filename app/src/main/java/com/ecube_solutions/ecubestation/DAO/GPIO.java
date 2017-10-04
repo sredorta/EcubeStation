@@ -7,6 +7,8 @@ import com.ecube_solutions.ecubestation.Singleton.Locker;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -56,6 +58,22 @@ public class GPIO {
         if (DEBUG_MODE) Log.i(TAG,"Created GPIO file: " + this.port);
     }
 
+    public static ArrayList<GPIO> getArray() {
+        ArrayList<GPIO> myList = new ArrayList<>();
+        myList.add(new GPIO(2));   //[0] : GPIO-A    Pin:3
+
+        myList.add(new GPIO(36));   //[0] : GPIO-A    Pin:23
+        myList.add(new GPIO(12));   //[1] : GPIO-B    Pin:24
+        myList.add(new GPIO(13));   //[2] : GPIO-C    Pin:25
+        myList.add(new GPIO(69));   //[3] : GPIO-D    Pin:26
+        myList.add(new GPIO(115));  //[4] : GPIO-E    Pin:27
+        myList.add(new GPIO(12));   //[5] : GPIO-F    Pin:28
+        myList.add(new GPIO(13));   //[6] : GPIO-C    Pin:25
+        myList.add(new GPIO(69));   //[7] : GPIO-D    Pin:26
+
+
+        return myList;
+    }
 
     //This function checks if SuperUser is available
     public static boolean isSuperUserAvailable() {

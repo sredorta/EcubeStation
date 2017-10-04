@@ -122,6 +122,14 @@ public class GpsService extends Service implements LocationListener {
         location.setLatitude(0);
         //Save data in singleton
         mLocker = Locker.getLocker();
+
+        //WA for  now !!!
+        Log.i("GPS","WORKAROUND: creating dummy coordinates");
+        Location location = new Location("workaround");
+        location.setLatitude(43.5d);
+        location.setLongitude(7.5d);
+        mLocker.lLocation = location;
+        mLocker.lStatusGPS = true;
     }
 
 

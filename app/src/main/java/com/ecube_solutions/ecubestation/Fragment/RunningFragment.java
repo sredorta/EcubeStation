@@ -25,11 +25,15 @@ import android.widget.TextView;
 
 import com.ecube_solutions.ecubestation.Activity.RunningActivity;
 import com.ecube_solutions.ecubestation.DAO.CloudFetchr;
+import com.ecube_solutions.ecubestation.DAO.GPIO;
 import com.ecube_solutions.ecubestation.DAO.ImageItem;
 import com.ecube_solutions.ecubestation.R;
 import com.ecube_solutions.ecubestation.Service.GpsService;
 import com.ecube_solutions.ecubestation.Service.PollService;
 import com.ecube_solutions.ecubestation.Singleton.Locker;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by sergi on 26/09/2017.
@@ -45,6 +49,8 @@ public class RunningFragment extends Fragment {
     private Intent PollServiceIntent;
     private BroadcastReceiver PollServiceReceiver;
     private static Handler handlerImageShift = new Handler();
+//    public final GPIO myLED = new GPIO(36);
+    public final ArrayList<GPIO> gpioArray =  GPIO.getArray();
 
     private int mImageIndex;
     public Locker mLocker;
@@ -74,6 +80,8 @@ public class RunningFragment extends Fragment {
         productDisplay = (TextView) v.findViewById(R.id.productDisplay);
         mainImage = (ImageView) v.findViewById(R.id.mainImage);
         mainText = (TextView) v.findViewById(R.id.mainText);
+        gpioArray.get(0).activationPin();
+        gpioArray.get(0).setInOut("out");
         return v;
     }
 
@@ -242,12 +250,14 @@ public class RunningFragment extends Fragment {
             case "OPEN_LOCKER_0":
                 mainImage.setImageDrawable(getResources().getDrawable(R.drawable.open));
                 mainText.setText(getResources().getString(R.string.mainTextOpen) + " #" + 0);
+                gpioArray.get(0).setState(1);
                 resetScreen();
                 //TODO: Open the locker 1
                 break;
             case "CLOSE_LOCKER_0":
                 mainImage.setImageDrawable(getResources().getDrawable(R.drawable.closed));
                 mainText.setText(getResources().getString(R.string.mainTextClose) + " #" + 0);
+                gpioArray.get(0).setState(0);
                 resetScreen();
                 //TODO: Close the locker 1
                 break;
